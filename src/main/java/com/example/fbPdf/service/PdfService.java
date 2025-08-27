@@ -5,11 +5,13 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 @Service
@@ -20,12 +22,14 @@ public class PdfService {
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
 
+            PDImageXObject image = PDImageXObject.createFromFile("image.jpg", document);
+
             try(PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                 // Font cơ bản
                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
                 contentStream.setNonStrokingColor(Color.BLUE);
                 contentStream.beginText();
-                contentStream.newLineAtOffset(100, 750);
+                contentStream.newLineAtOffset(50, 750);
                 contentStream.showText("Demo Apache PDFBox - Styling Text");
                 contentStream.endText();
 
@@ -83,10 +87,33 @@ public class PdfService {
                 contentStream.moveTo(50, 608);
                 contentStream.lineTo(50 + strikeWidth, 608);
                 contentStream.stroke();
+
+                String longtext = "In the example provided in the previous chapter we discussed how to add text to a page in";
+                contentStream.setFont(PDType1Font.TIMES_ROMAN, 14);
+                contentStream.setLeading(14.5f);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(50, 550);
+                contentStream.showText(longtext);
+                contentStream.newLine();
+                contentStream.showText("a PDF but through this program, you can only add the text that would fit in a single line.");
+                contentStream.newLine();
+                contentStream.showText("If you try to add more content, all the text that exceeds the line space will not be displayed.");
+                contentStream.endText();
+
+                float scale = 0.5f;
+                float imageWidth = page.getMediaBox().getWidth() - 100;
+                float imageHeight = imageWidth / image.getWidth() * image.getHeight();
+                contentStream.drawImage(image, 50, 470 - imageHeight * scale, imageWidth * scale, imageHeight * scale);
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             document.save(out);
+
+//            // Save to a file in current directory
+//            String fileName = "output.txt";  // change name as needed
+//            try (FileOutputStream fos = new FileOutputStream(fileName)) {
+//                out.writeTo(fos);
+//            }
             return out.toByteArray();
         }
     }

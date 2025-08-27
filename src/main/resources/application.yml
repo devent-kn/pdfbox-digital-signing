@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: fbPdf
+  servlet:
+    multipart:
+      max-file-size: 50MB      # Giới hạn 1 file
+      max-request-size: 60MB   # Giới hạn tổng request
+
+cloud:
+  aws:
+    s3:
+      endpoint: http://localhost:9000  # MinIO endpoint
+      region: us-east-1
+      bucket: testbucket
+      access-key: admin
+      secret-key: password123
+
+app:
+  keystore:
+    path: classpath:mykey.pfx
+    password: 123
+    alias: mykey
