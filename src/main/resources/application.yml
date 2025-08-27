@@ -20,3 +20,9 @@ app:
     path: classpath:mykey.pfx
     password: 123
     alias: mykey
+
+ca:
+  keystore:
+    path: classpath:ca.pfx
+    password: 123
+    alias: ca

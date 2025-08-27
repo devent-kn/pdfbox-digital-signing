@@ -18,11 +18,17 @@ public class KeystoreConfig {
     @Value("${app.keystore.password}")
     private String keystorePassword;
 
+    @Value("${ca.keystore.path}")
+    private String caKeystorePath;
+
+    @Value("${ca.keystore.password}")
+    private String caKeystorePassword;
+
     @Value("${app.keystore.alias}")
     private String alias;
 
-    @Bean
-    public KeyStore keyStore() throws Exception {
+    @Bean("localSignKeyStore")
+    public KeyStore localSignKeyStore() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         InputStream is;
         String path = keystorePath.replace("classpath:", "");
@@ -34,13 +40,17 @@ public class KeystoreConfig {
         return keyStore;
     }
 
-    @Bean
-    public PrivateKey privateKey(KeyStore keyStore) throws Exception {
-        return (PrivateKey) keyStore.getKey(alias, keystorePassword.toCharArray());
+    @Bean("caKeyStore")
+    public KeyStore caKeyStore() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        InputStream is;
+        String path = caKeystorePath.replace("classpath:", "");
+        is = getClass().getResourceAsStream("/" + path);
+
+        try (is) {
+            keyStore.load(is, caKeystorePassword.toCharArray());
+        }
+        return keyStore;
     }
 
-    @Bean
-    public Certificate[] certificateChain(KeyStore keyStore) throws Exception {
-        return keyStore.getCertificateChain(alias);
-    }
 }

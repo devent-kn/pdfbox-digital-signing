@@ -1,11 +1,11 @@
-package com.example.fbPdf.service.impl;
+package com.example.fbPdf.service;
 
 import com.example.fbPdf.enums.SigningProviderType;
-import com.example.fbPdf.service.LocalSignService;
-import com.example.fbPdf.service.PdfSigner;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +18,11 @@ import java.security.cert.Certificate;
 import java.util.Calendar;
 
 @Service
-@RequiredArgsConstructor
 public class LocalSigner implements PdfSigner {
 
-    private final KeyStore keyStore;
+    @Autowired
+    @Qualifier("localSignKeyStore")
+    private KeyStore keyStore;
 
     @Value("${app.keystore.alias}")
     private String alias;

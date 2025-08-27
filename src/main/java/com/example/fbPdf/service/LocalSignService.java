@@ -1,5 +1,6 @@
 package com.example.fbPdf.service;
 
+import com.example.fbPdf.models.CMSProcessableInputStream;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureInterface;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cms.CMSSignedData;
