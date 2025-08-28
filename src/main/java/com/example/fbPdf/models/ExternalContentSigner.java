@@ -9,7 +9,6 @@ import org.bouncycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.security.MessageDigest;
 
 public class ExternalContentSigner implements ContentSigner {
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -34,13 +33,8 @@ public class ExternalContentSigner implements ContentSigner {
     public byte[] getSignature() {
         byte[] toBeSigned = buffer.toByteArray();
 
-        System.out.println("toBeSigned " + Hex.toHexString(toBeSigned));
+        System.out.println("DER-encoded toBeSigned " + Hex.toHexString(toBeSigned));
 
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        byte[] hash = md.digest(toBeSigned);
-
-        System.out.println("hash chữ ký " + Hex.toHexString(hash));
-
-        return externalSignatureProvider.signHash(hash);
+        return externalSignatureProvider.signHash(toBeSigned);
     }
 }

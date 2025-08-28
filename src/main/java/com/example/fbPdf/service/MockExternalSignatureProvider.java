@@ -36,7 +36,7 @@ public class MockExternalSignatureProvider {
         PrivateKey privateKey = getPrivateKey();
 
         try {
-            Signature signature = Signature.getInstance("NONEwithRSA");
+            Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(privateKey);
             signature.update(hash);
             return signature.sign();
