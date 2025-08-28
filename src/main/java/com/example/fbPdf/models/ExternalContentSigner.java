@@ -29,7 +29,6 @@ public class ExternalContentSigner implements ContentSigner {
     }
 
     @Override
-    @SneakyThrows
     public byte[] getSignature() {
         byte[] toBeSigned = buffer.toByteArray();
 
