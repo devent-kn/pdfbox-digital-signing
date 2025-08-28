@@ -1,6 +1,7 @@
 package com.example.fbPdf.service;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +13,7 @@ import java.security.Signature;
 import java.security.cert.Certificate;
 
 @Service
-public class MockExternalSignatureProvider {
+public class MockCA {
 
     @Autowired
     @Qualifier("caKeyStore")
@@ -24,17 +25,18 @@ public class MockExternalSignatureProvider {
     @Value("${ca.keystore.password}")
     private String keystorePassword;
 
-    private PrivateKey getPrivateKey() throws Exception {
-        return (PrivateKey) keyStore.getKey(alias, keystorePassword.toCharArray());
+    private PrivateKey privateKey;
+
+    @Getter
+    private Certificate[] certificateChain;
+
+    @PostConstruct
+    private void init() throws Exception {
+        this.privateKey = (PrivateKey) keyStore.getKey(alias, keystorePassword.toCharArray());
+        this.certificateChain = keyStore.getCertificateChain(alias);
     }
 
-    public Certificate[] getCertificateChain() throws Exception {
-        return keyStore.getCertificateChain(alias);
-    }
-
-    public byte[] signHash(byte[] hash) throws Exception {
-        PrivateKey privateKey = getPrivateKey();
-
+    public byte[] signHash(byte[] hash) {
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initSign(privateKey);

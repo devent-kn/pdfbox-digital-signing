@@ -1,5 +1,5 @@
 package com.example.fbPdf.enums;
 
-public enum SigningProviderType {
+public enum SigningType {
     CLOUD_CA, LOCAL
 }

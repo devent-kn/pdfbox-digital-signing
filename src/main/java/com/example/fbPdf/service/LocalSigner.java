@@ -1,48 +1,24 @@
 package com.example.fbPdf.service;
 
-import com.example.fbPdf.enums.SigningProviderType;
+import com.example.fbPdf.enums.SigningType;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
 import java.util.Calendar;
 
 @Service
+@RequiredArgsConstructor
 public class LocalSigner implements PdfSigner {
 
-    @Autowired
-    @Qualifier("localSignKeyStore")
-    private KeyStore keyStore;
-
-    @Value("${app.keystore.alias}")
-    private String alias;
-
-    @Value("${app.keystore.password}")
-    private String keystorePassword;
-
-    private PrivateKey getPrivateKey() throws Exception {
-        return (PrivateKey) keyStore.getKey(alias, keystorePassword.toCharArray());
-    }
-
-    private Certificate[] getCertificateChain() throws Exception {
-        return keyStore.getCertificateChain(alias);
-    }
+    private final LocalSignService localSignService;
 
     @Override
     public byte[] sign(InputStream pdfInput) throws Exception {
-        PrivateKey privateKey = getPrivateKey();
-        Certificate[] certificateChain = getCertificateChain();
-
         try (PDDocument document = PDDocument.load(pdfInput)) {
             PDSignature signature = new PDSignature();
             signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
@@ -54,7 +30,7 @@ public class LocalSigner implements PdfSigner {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            document.addSignature(signature, new LocalSignService(privateKey, certificateChain));
+            document.addSignature(signature, localSignService);
             document.saveIncremental(baos);
             return baos.toByteArray();
 
@@ -64,7 +40,7 @@ public class LocalSigner implements PdfSigner {
     }
 
     @Override
-    public SigningProviderType getSigningType() {
-        return SigningProviderType.LOCAL;
+    public SigningType getSigningType() {
+        return SigningType.LOCAL;
     }
 }

@@ -1,6 +1,6 @@
 package com.example.fbPdf.controller;
 
-import com.example.fbPdf.enums.SigningProviderType;
+import com.example.fbPdf.enums.SigningType;
 import com.example.fbPdf.event.StringPublisherService;
 import com.example.fbPdf.service.PdfService;
 import com.example.fbPdf.service.S3Service;
@@ -61,7 +61,7 @@ public class PdfController {
     @PostMapping("/sign")
     public ResponseEntity<byte[]> signPdf(
             @RequestParam("file") MultipartFile file,
-            @RequestParam SigningProviderType signingType
+            @RequestParam SigningType signingType
     ) throws Exception {
 
         InputStream inputStream = file.getInputStream();

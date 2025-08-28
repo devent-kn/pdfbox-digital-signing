@@ -1,6 +1,6 @@
 package com.example.fbPdf.factory;
 
-import com.example.fbPdf.enums.SigningProviderType;
+import com.example.fbPdf.enums.SigningType;
 import com.example.fbPdf.service.PdfSigner;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 @Service
 public class PdfSignerFactory {
 
-    private final Map<SigningProviderType, PdfSigner> signerByType = new HashMap<>();
+    private final Map<SigningType, PdfSigner> signerByType = new HashMap<>();
 
     public PdfSignerFactory(List<PdfSigner> signers) {
         for (PdfSigner s : signers) {
@@ -19,7 +19,7 @@ public class PdfSignerFactory {
         }
     }
 
-    public PdfSigner getPdfSigner(SigningProviderType type) {
+    public PdfSigner getPdfSigner(SigningType type) {
         if (type == null) {
             throw new IllegalArgumentException("Signer type must not be null");
         }

@@ -1,6 +1,6 @@
 package com.example.fbPdf.service;
 
-import com.example.fbPdf.enums.SigningProviderType;
+import com.example.fbPdf.enums.SigningType;
 import com.example.fbPdf.factory.PdfSignerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +15,8 @@ public class SigningService {
 
     private final PdfSignerFactory pdfSignerFactory;
 
-    public byte[] signPdf(InputStream inputPdf, SigningProviderType signingProviderType) throws Exception {
-        PdfSigner pdfSigner = pdfSignerFactory.getPdfSigner(signingProviderType);
+    public byte[] signPdf(InputStream inputPdf, SigningType signingType) throws Exception {
+        PdfSigner pdfSigner = pdfSignerFactory.getPdfSigner(signingType);
         return pdfSigner.sign(inputPdf);
     }
 }

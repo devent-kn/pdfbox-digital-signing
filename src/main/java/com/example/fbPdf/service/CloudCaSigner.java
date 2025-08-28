@@ -1,6 +1,6 @@
 package com.example.fbPdf.service;
 
-import com.example.fbPdf.enums.SigningProviderType;
+import com.example.fbPdf.enums.SigningType;
 import com.example.fbPdf.models.ExternalContentSigner;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -29,11 +29,12 @@ import java.util.Calendar;
 @RequiredArgsConstructor
 public class CloudCaSigner implements PdfSigner {
 
-    private final MockExternalSignatureProvider mockExternalSignatureProvider;
+    private final MockCA mockCA;
+    private final CASignService caSignService;
 
+    // Cách 1: dùng saveIncrementalForExternalSigning()
     @Override
     public byte[] sign(InputStream pdfInput) throws Exception {
-
         try (PDDocument document = PDDocument.load(pdfInput)) {
             PDSignature signature = new PDSignature();
             signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
@@ -69,16 +70,38 @@ public class CloudCaSigner implements PdfSigner {
         }
     }
 
+    // Cách 2: dùng saveIncremental() và implement SignatureInterface
+//    @Override
+//    public byte[] sign(InputStream pdfInput) throws Exception {
+//        try (PDDocument document = PDDocument.load(pdfInput)) {
+//            PDSignature signature = new PDSignature();
+//            signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
+//            signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED);
+//            signature.setName("Demo User");
+//            signature.setLocation("VN");
+//            signature.setReason("External signing");
+//            signature.setSignDate(Calendar.getInstance());
+//
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//
+//            SignatureOptions options = new SignatureOptions();
+//            options.setPreferredSignatureSize(8192 * 2);
+//            document.addSignature(signature, caSignService, options);
+//            document.saveIncremental(baos);
+//            return baos.toByteArray();
+//        }
+//    }
+
     @Override
-    public SigningProviderType getSigningType() {
-        return SigningProviderType.CLOUD_CA;
+    public SigningType getSigningType() {
+        return SigningType.CLOUD_CA;
     }
 
     private byte[] getExternalSignature(InputStream pdfByteRangeStream) throws Exception {
-        Certificate[] chain = mockExternalSignatureProvider.getCertificateChain();
+        Certificate[] chain = mockCA.getCertificateChain();
         JcaCertStore certs = new JcaCertStore(Arrays.asList(chain));
 
-        ExternalContentSigner contentSigner = new ExternalContentSigner(mockExternalSignatureProvider);
+        ExternalContentSigner contentSigner = new ExternalContentSigner(mockCA);
 
         X509CertificateHolder certHolder = new X509CertificateHolder(chain[0].getEncoded());
         SignerInfoGeneratorBuilder builder = new SignerInfoGeneratorBuilder(new BcDigestCalculatorProvider());
