@@ -1,4 +1,4 @@
-package com.example.fbPdf.service;
+package com.example.fbPdf.service.signer;
 
 import com.example.fbPdf.enums.SigningType;
 

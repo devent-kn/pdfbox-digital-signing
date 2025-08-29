@@ -1,12 +1,9 @@
 package com.example.fbPdf.service;
 
-import com.example.fbPdf.models.CMSProcessableInputStream;
 import jakarta.annotation.PostConstruct;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureInterface;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
-import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.cms.CMSSignedDataGenerator;
-import org.bouncycastle.cms.SignerInfoGenerator;
+import org.bouncycastle.cms.*;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -16,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -48,7 +46,10 @@ public class LocalSignService implements SignatureInterface {
     @Override
     public byte[] sign(InputStream content) throws IOException {
         try {
-            CMSProcessableInputStream cmsProcessable = new CMSProcessableInputStream(content);
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            content.transferTo(buffer);
+            byte[] data = buffer.toByteArray();
+            CMSTypedData cmsProcessable = new CMSProcessableByteArray(data);
 
             CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
             JcaDigestCalculatorProviderBuilder digestCalculatorProviderBuilder

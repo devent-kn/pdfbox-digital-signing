@@ -1,6 +1,7 @@
-package com.example.fbPdf.service;
+package com.example.fbPdf.service.signer;
 
 import com.example.fbPdf.enums.SigningType;
+import com.example.fbPdf.service.LocalSignService;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;

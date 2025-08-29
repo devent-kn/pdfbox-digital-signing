@@ -13,7 +13,7 @@ import java.security.Signature;
 import java.security.cert.Certificate;
 
 @Service
-public class MockCA {
+public class MockCAService {
 
     @Autowired
     @Qualifier("caKeyStore")

@@ -2,7 +2,7 @@ package com.example.fbPdf.controller;
 
 import com.example.fbPdf.enums.SigningType;
 import com.example.fbPdf.event.StringPublisherService;
-import com.example.fbPdf.service.PdfService;
+import com.example.fbPdf.service.PdfStyleService;
 import com.example.fbPdf.service.S3Service;
 import com.example.fbPdf.service.SigningService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +19,13 @@ import java.io.InputStream;
 @RequestMapping("/pdf")
 public class PdfController {
 
-    private final PdfService pdfService;
+    private final PdfStyleService pdfStyleService;
     private final S3Service s3Service;
     private final SigningService signingService;
     private final StringPublisherService stringPublisherService;
 
-    public PdfController(PdfService pdfService, S3Service s3Service, SigningService signingService, StringPublisherService stringPublisherService) {
-        this.pdfService = pdfService;
+    public PdfController(PdfStyleService pdfStyleService, S3Service s3Service, SigningService signingService, StringPublisherService stringPublisherService) {
+        this.pdfStyleService = pdfStyleService;
         this.s3Service = s3Service;
         this.signingService = signingService;
         this.stringPublisherService = stringPublisherService;
@@ -49,7 +49,7 @@ public class PdfController {
 
     @GetMapping("/create")
     public ResponseEntity<byte[]> createPdf() throws Exception {
-        byte[] pdf = pdfService.createStyledPdf();
+        byte[] pdf = pdfStyleService.createStyledPdf();
         stringPublisherService.sendMessage("test message");
         System.out.println("Send msg | Thread: " + Thread.currentThread().getName());
         return ResponseEntity.ok()

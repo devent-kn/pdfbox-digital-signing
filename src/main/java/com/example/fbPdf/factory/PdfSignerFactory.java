@@ -1,7 +1,7 @@
 package com.example.fbPdf.factory;
 
 import com.example.fbPdf.enums.SigningType;
-import com.example.fbPdf.service.PdfSigner;
+import com.example.fbPdf.service.signer.PdfSigner;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

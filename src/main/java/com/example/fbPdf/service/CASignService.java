@@ -26,7 +26,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class CASignService implements SignatureInterface {
 
-    private final MockCA mockCA;
+    private final MockCAService mockCAService;
 
     @Override
     public byte[] sign(InputStream content) throws IOException {
@@ -51,9 +51,9 @@ public class CASignService implements SignatureInterface {
 
     private CMSSignedDataGenerator getCmsSignedDataGenerator()
             throws CertificateEncodingException, IOException, OperatorCreationException, CMSException {
-        ExternalContentSigner contentSigner = new ExternalContentSigner(mockCA);
+        ExternalContentSigner contentSigner = new ExternalContentSigner(mockCAService);
 
-        Certificate[] certificateChain = mockCA.getCertificateChain();
+        Certificate[] certificateChain = mockCAService.getCertificateChain();
         JcaCertStore certStore = new JcaCertStore(Arrays.asList(certificateChain));
         X509CertificateHolder certHolder = new X509CertificateHolder(certificateChain[0].getEncoded());
 
