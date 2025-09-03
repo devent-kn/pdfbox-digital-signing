@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
-public class CASignService implements SignatureInterface {
+public class CloudSignService implements SignatureInterface {
 
     private final MockCAService mockCAService;
 

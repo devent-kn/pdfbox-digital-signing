@@ -3,6 +3,7 @@ package com.example.fbPdf.service.signer;
 import com.example.fbPdf.enums.SigningType;
 import com.example.fbPdf.service.LocalSignService;
 import lombok.RequiredArgsConstructor;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class LocalSigner implements PdfSigner {
 
     @Override
     public byte[] sign(InputStream pdfInput) throws Exception {
-        try (PDDocument document = PDDocument.load(pdfInput)) {
+        try (PDDocument document = Loader.loadPDF(pdfInput.readAllBytes())) {
             PDSignature signature = new PDSignature();
             signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
             signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED);

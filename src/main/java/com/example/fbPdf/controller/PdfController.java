@@ -2,6 +2,7 @@ package com.example.fbPdf.controller;
 
 import com.example.fbPdf.enums.SigningType;
 import com.example.fbPdf.event.StringPublisherService;
+import com.example.fbPdf.service.DocumentService;
 import com.example.fbPdf.service.PdfStyleService;
 import com.example.fbPdf.service.S3Service;
 import com.example.fbPdf.service.SigningService;
@@ -23,18 +24,35 @@ public class PdfController {
     private final S3Service s3Service;
     private final SigningService signingService;
     private final StringPublisherService stringPublisherService;
+    private final DocumentService documentService;
 
-    public PdfController(PdfStyleService pdfStyleService, S3Service s3Service, SigningService signingService, StringPublisherService stringPublisherService) {
+    public PdfController(PdfStyleService pdfStyleService,
+                         S3Service s3Service,
+                         SigningService signingService,
+                         StringPublisherService stringPublisherService,
+                         DocumentService documentService) {
         this.pdfStyleService = pdfStyleService;
         this.s3Service = s3Service;
         this.signingService = signingService;
         this.stringPublisherService = stringPublisherService;
+        this.documentService = documentService;
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) throws Exception {
-        String url = s3Service.uploadFile(file);
-        return ResponseEntity.ok(url);
+    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(documentService.uploadFile(file));
+    }
+
+    @PostMapping("/signing-request")
+    public ResponseEntity<String> signingRequest(@RequestParam("fileName") String fileName) throws Exception {
+        return ResponseEntity.ok(signingService.preparePdfForExternalSigning(fileName));
+    }
+
+    @PostMapping("/callback")
+    public ResponseEntity<String> callback() throws Exception {
+        byte[] cmsSignature = new byte[0];
+        signingService.callbackMoit(cmsSignature);
+        return ResponseEntity.ok("callback ok");
     }
 
     @GetMapping("/download/{filename}")
