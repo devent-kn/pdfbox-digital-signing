@@ -2,6 +2,7 @@ package com.example.fbPdf.service;
 
 import com.example.fbPdf.models.CMSProcessableInputStream;
 import com.example.fbPdf.models.ExternalContentSigner;
+import com.example.fbPdf.models.MOITContentSigner;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureInterface;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -51,7 +52,7 @@ public class CloudSignService implements SignatureInterface {
 
     private CMSSignedDataGenerator getCmsSignedDataGenerator()
             throws CertificateEncodingException, IOException, OperatorCreationException, CMSException {
-        ExternalContentSigner contentSigner = new ExternalContentSigner(mockCAService);
+        MOITContentSigner contentSigner = new MOITContentSigner(mockCAService);
 
         Certificate[] certificateChain = mockCAService.getCertificateChain();
         JcaCertStore certStore = new JcaCertStore(Arrays.asList(certificateChain));
