@@ -4,12 +4,16 @@ import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import static org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA_BOLD;
+import static org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.TIMES_ROMAN;
 
 @Service
 public class PdfStyleService {
@@ -22,8 +26,11 @@ public class PdfStyleService {
             PDImageXObject image = PDImageXObject.createFromFile("image.jpg", document);
 
             try(PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                PDType1Font timesRomanFont = new PDType1Font(TIMES_ROMAN);
+                PDType1Font helveticaBoldFont = new PDType1Font(HELVETICA_BOLD);
+
                 // Font cơ bản
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+                contentStream.setFont(helveticaBoldFont, 18);
                 contentStream.setNonStrokingColor(Color.BLUE);
                 contentStream.beginText();
                 contentStream.newLineAtOffset(50, 750);
@@ -31,7 +38,7 @@ public class PdfStyleService {
                 contentStream.endText();
 
                 // Font thường
-                contentStream.setFont(PDType1Font.TIMES_ROMAN, 14);
+                contentStream.setFont(timesRomanFont, 14);
                 contentStream.setNonStrokingColor(Color.BLACK);
 
                 // Left align
@@ -42,20 +49,20 @@ public class PdfStyleService {
 
                 // Center align
                 String centerText = "This is CENTER aligned text.";
-                float stringWidth = PDType1Font.TIMES_ROMAN.getStringWidth(centerText) / 1000 * 14;
+                float stringWidth = timesRomanFont.getStringWidth(centerText) / 1000 * 14;
                 float startX = (page.getMediaBox().getWidth() - stringWidth) / 2;
                 contentStream.beginText();
-                contentStream.setFont(PDType1Font.TIMES_ROMAN, 14);
+                contentStream.setFont(timesRomanFont, 14);
                 contentStream.newLineAtOffset(startX, 680);
                 contentStream.showText(centerText);
                 contentStream.endText();
 
                 // Right align
                 String rightText = "This is RIGHT aligned text.";
-                stringWidth = PDType1Font.TIMES_ROMAN.getStringWidth(rightText) / 1000 * 14;
+                stringWidth = timesRomanFont.getStringWidth(rightText) / 1000 * 14;
                 startX = page.getMediaBox().getWidth() - stringWidth - 50;
                 contentStream.beginText();
-                contentStream.setFont(PDType1Font.TIMES_ROMAN, 14);
+                contentStream.setFont(timesRomanFont, 14);
                 contentStream.newLineAtOffset(startX, 660);
                 contentStream.showText(rightText);
                 contentStream.endText();
@@ -63,12 +70,12 @@ public class PdfStyleService {
                 // Underline (draw line manually)
                 String underlineText = "This is UNDERLINED text.";
                 contentStream.beginText();
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+                contentStream.setFont(helveticaBoldFont, 14);
                 contentStream.newLineAtOffset(50, 630);
                 contentStream.showText(underlineText);
                 contentStream.endText();
 
-                float underlineWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(underlineText) / 1000 * 14;
+                float underlineWidth = helveticaBoldFont.getStringWidth(underlineText) / 1000 * 14;
                 contentStream.moveTo(50, 628);
                 contentStream.lineTo(50 + underlineWidth, 628);
                 contentStream.stroke();
@@ -80,13 +87,13 @@ public class PdfStyleService {
                 contentStream.showText(strikeText);
                 contentStream.endText();
 
-                float strikeWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(strikeText) / 1000 * 14;
+                float strikeWidth = helveticaBoldFont.getStringWidth(strikeText) / 1000 * 14;
                 contentStream.moveTo(50, 608);
                 contentStream.lineTo(50 + strikeWidth, 608);
                 contentStream.stroke();
 
                 String longtext = "In the example provided in the previous chapter we discussed how to add text to a page in";
-                contentStream.setFont(PDType1Font.TIMES_ROMAN, 14);
+                contentStream.setFont(timesRomanFont, 14);
                 contentStream.setLeading(14.5f);
                 contentStream.beginText();
                 contentStream.newLineAtOffset(50, 550);

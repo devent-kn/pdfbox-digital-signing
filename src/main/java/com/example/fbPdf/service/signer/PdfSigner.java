@@ -2,9 +2,9 @@ package com.example.fbPdf.service.signer;
 
 import com.example.fbPdf.enums.SigningType;
 
-import java.io.InputStream;
+import java.io.File;
 
 public interface PdfSigner {
-    byte[] sign(InputStream pdfInput) throws Exception;
+    byte[] sign(File fileInput) throws Exception;
     SigningType getSigningType();
 }
