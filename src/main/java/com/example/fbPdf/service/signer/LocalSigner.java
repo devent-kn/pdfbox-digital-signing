@@ -20,7 +20,7 @@ public class LocalSigner implements PdfSigner {
     private final LocalSignService localSignService;
 
     @Override
-    public byte[] sign(File fileInput) throws Exception {
+    public byte[] sign(File fileInput, boolean async) throws Exception {
         try (PDDocument document = Loader.loadPDF(fileInput)) {
             PDSignature signature = new PDSignature();
             signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);

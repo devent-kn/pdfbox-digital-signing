@@ -50,7 +50,7 @@ public class PdfSignaturePatcher {
             document.getDocumentCatalog().setAcroForm(acroForm);
         }
 
-        PDSignature signature = null;
+        PDSignature signature;
         PDSignatureField signatureField = (PDSignatureField) acroForm.getField(sigFieldName);
 
         if (signatureField != null) {
@@ -59,6 +59,8 @@ public class PdfSignaturePatcher {
                 signature = new PDSignature();
                 signatureField.getCOSObject().setItem(COSName.V, signature);
             }
+        } else {
+            throw new IllegalArgumentException("No signature field " + sigFieldName + " found");
         }
 
         return signature;

@@ -1,6 +1,5 @@
 package com.example.fbPdf.models;
 
-import com.example.fbPdf.service.MockCAService;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.operator.ContentSigner;

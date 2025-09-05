@@ -35,7 +35,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CloudSigner implements PdfSigner {
+public class ExternalSigner implements PdfSigner {
 
     private final MockCAService mockCAService;
     private final CloudSignService cloudSignService;
@@ -46,35 +46,64 @@ public class CloudSigner implements PdfSigner {
     private static final String SIGNATURE_CALLBACK_SIGNED_PATH = "files/signature-callback-signed.pdf";
     private static final String SIGNATURE_SIGNED_PATH = "files/signature-signed.pdf";
 
-    // Cách 1: dùng saveIncrementalForExternalSigning()
     @Override
-    public byte[] sign(File fileInput) throws Exception {
-        File signatureSignedFile = new File(SIGNATURE_SIGNED_PATH);
-        try (PDDocument document = Loader.loadPDF(fileInput)) {
+    public byte[] sign(File inputFile, boolean async) throws Exception {
+        try (PDDocument document = Loader.loadPDF(inputFile)) {
             PDSignature signature = new PDSignature();
             signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
             signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED);
             signature.setName("Demo User");
+            signature.setReason("Reason to sign");
             signature.setLocation("VN");
-            signature.setReason("External signing");
             signature.setSignDate(Calendar.getInstance());
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            if (async) {
+                // Customize the signature field name
+                PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
+                if (acroForm == null) {
+                    acroForm = new PDAcroForm(document);
+                    document.getDocumentCatalog().setAcroForm(acroForm);
+                }
+                PDSignatureField sigField = new PDSignatureField(acroForm);
+                sigField.setPartialName(signatureFieldName);
+                sigField.setValue(signature);
+
+                PDAnnotationWidget widget = sigField.getWidgets().get(0);
+                PDPage page1 = document.getPage(0);
+                widget.setPage(page1);
+                page1.getAnnotations().add(widget);
+                acroForm.getFields().add(sigField);
+            }
 
             SignatureOptions options = new SignatureOptions();
-            options.setPreferredSignatureSize(8192);
+            options.setPreferredSignatureSize(8192 * 2);
             document.addSignature(signature, options);
 
-            ExternalSigningSupport externalSigningSupport = document.saveIncrementalForExternalSigning(baos);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ExternalSigningSupport signingSupport = document.saveIncrementalForExternalSigning(baos);
+
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            externalSigningSupport.getContent().transferTo(buffer);
+            signingSupport.getContent().transferTo(buffer);
             byte[] contentToBeSigned = buffer.toByteArray();
 
-            byte[] cmsSignature = signByExternalProvider(contentToBeSigned);
-            externalSigningSupport.setSignature(cmsSignature);
+            if (async) {
+                signByAsyncExternalProvider(contentToBeSigned);
+                signatureContentOffset = signature.getByteRange()[1] + 1;
+                signingSupport.setSignature(new byte[0]);
 
-            try (FileOutputStream fos = new FileOutputStream(signatureSignedFile)) {
-                fos.write(baos.toByteArray());
+                // save contentToBeSigned to file for mocking external signature callback purpose
+                try (FileOutputStream out = new FileOutputStream("files/contentToBeSigned.bin")) {
+                    out.write(contentToBeSigned);
+                }
+                try (FileOutputStream fos = new FileOutputStream(SIGNATURE_PLACEHOLDER_PATH)) {
+                    fos.write(baos.toByteArray());
+                }
+            } else {
+                byte[] cmsSignature = signByExternalProvider(contentToBeSigned);
+                signingSupport.setSignature(cmsSignature);
+                try (FileOutputStream fos = new FileOutputStream(SIGNATURE_SIGNED_PATH)) {
+                    fos.write(baos.toByteArray());
+                }
             }
             return baos.toByteArray();
         }
@@ -105,59 +134,6 @@ public class CloudSigner implements PdfSigner {
     @Override
     public SigningType getSigningType() {
         return SigningType.CLOUD_CA;
-    }
-
-    public void createSignaturePlaceholder(String inputPath) throws Exception {
-        byte[] contentToBeSigned;
-        File signaturePlaceholderFile = new File(SIGNATURE_PLACEHOLDER_PATH);
-        try (PDDocument document = Loader.loadPDF(new File(inputPath))) {
-
-            PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
-            if (acroForm == null) {
-                acroForm = new PDAcroForm(document);
-                document.getDocumentCatalog().setAcroForm(acroForm);
-            }
-
-            PDSignature signature = new PDSignature();
-            signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
-            signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED);
-            signature.setName("Callback Signature Signer");
-            signature.setReason("Async signing");
-            signature.setSignDate(Calendar.getInstance());
-
-            // Customize the signature field name
-            PDSignatureField signatureField = new PDSignatureField(acroForm);
-            signatureField.setPartialName(signatureFieldName);
-            signatureField.setValue(signature);
-
-            PDAnnotationWidget widget = signatureField.getWidgets().get(0);
-            PDPage page1 = document.getPage(0);
-            widget.setPage(page1);
-            page1.getAnnotations().add(widget);
-
-            acroForm.getFields().add(signatureField);
-
-            SignatureOptions options = new SignatureOptions();
-            options.setPreferredSignatureSize(8192*2);
-            document.addSignature(signature, options);
-
-            try (FileOutputStream fos = new FileOutputStream(signaturePlaceholderFile)) {
-                ExternalSigningSupport signingSupport = document.saveIncrementalForExternalSigning(fos);
-
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                signingSupport.getContent().transferTo(buffer);
-                contentToBeSigned = buffer.toByteArray();
-
-                signByAsyncExternalProvider(contentToBeSigned);
-                signatureContentOffset = signature.getByteRange()[1] + 1;
-                signingSupport.setSignature(new byte[0]);
-
-                // save contentToBeSigned to file for mocking external signature callback purpose
-                try (FileOutputStream out = new FileOutputStream("files/contentToBeSigned.bin")) {
-                    out.write(contentToBeSigned);
-                }
-            }
-        }
     }
 
     public void callbackAsyncSignature(byte[] cmsSignature) throws Exception {

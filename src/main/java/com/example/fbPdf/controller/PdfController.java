@@ -6,7 +6,7 @@ import com.example.fbPdf.service.DocumentService;
 import com.example.fbPdf.service.PdfStyleService;
 import com.example.fbPdf.service.S3Service;
 import com.example.fbPdf.service.SigningService;
-import com.example.fbPdf.service.signer.CloudSigner;
+import com.example.fbPdf.service.signer.ExternalSigner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,19 +27,19 @@ public class PdfController {
     private final SigningService signingService;
     private final StringPublisherService stringPublisherService;
     private final DocumentService documentService;
-    private final CloudSigner cloudSigner;
+    private final ExternalSigner externalSigner;
 
     public PdfController(PdfStyleService pdfStyleService,
                          S3Service s3Service,
                          SigningService signingService,
                          StringPublisherService stringPublisherService,
-                         DocumentService documentService, CloudSigner cloudSigner) {
+                         DocumentService documentService, ExternalSigner externalSigner) {
         this.pdfStyleService = pdfStyleService;
         this.s3Service = s3Service;
         this.signingService = signingService;
         this.stringPublisherService = stringPublisherService;
         this.documentService = documentService;
-        this.cloudSigner = cloudSigner;
+        this.externalSigner = externalSigner;
     }
 
     @PostMapping("/sign")
@@ -59,7 +59,8 @@ public class PdfController {
 
     @PostMapping("/callback-signing-request")
     public ResponseEntity<String> signingRequest(@RequestParam(required = false) String fileName) throws Exception {
-        signingService.preparePdfForExternalSigning("files/signature-test-file.pdf");
+        File inputFile = new File("files/signature-test-file.pdf");
+        signingService.preparePdfForExternalSigning(inputFile);
         return ResponseEntity.ok("signing request ok");
     }
 
@@ -70,7 +71,7 @@ public class PdfController {
         try (FileInputStream fis = new FileInputStream("files/contentToBeSigned.bin")) {
             contentToBeSigned = fis.readAllBytes();
         }
-        byte[] cmsSignature = cloudSigner.signByExternalProvider(contentToBeSigned);
+        byte[] cmsSignature = externalSigner.signByExternalProvider(contentToBeSigned);
 
         signingService.callbackAsyncSignature(cmsSignature);
         return ResponseEntity.ok("callback ok");

@@ -1,8 +1,6 @@
 package com.example.fbPdf.service;
 
-import ch.qos.logback.core.util.StringUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
