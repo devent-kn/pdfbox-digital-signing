@@ -42,9 +42,9 @@ public class CloudSigner implements PdfSigner {
     private final TSAClient tsaClient;
     private int signatureContentOffset;
     private final String signatureFieldName = "SignatureTA";
-    private static final String SIGNATURE_PLACEHOLDER_PATH = "signature-placeholder.pdf";
-    private static final String SIGNATURE_CALLBACK_SIGNED_PATH = "signature-callback-signed.pdf";
-    private static final String SIGNATURE_SIGNED_PATH = "signature-signed.pdf";
+    private static final String SIGNATURE_PLACEHOLDER_PATH = "files/signature-placeholder.pdf";
+    private static final String SIGNATURE_CALLBACK_SIGNED_PATH = "files/signature-callback-signed.pdf";
+    private static final String SIGNATURE_SIGNED_PATH = "files/signature-signed.pdf";
 
     // Cách 1: dùng saveIncrementalForExternalSigning()
     @Override
@@ -153,7 +153,7 @@ public class CloudSigner implements PdfSigner {
                 signingSupport.setSignature(new byte[0]);
 
                 // save contentToBeSigned to file for mocking external signature callback purpose
-                try (FileOutputStream out = new FileOutputStream("contentToBeSigned.bin")) {
+                try (FileOutputStream out = new FileOutputStream("files/contentToBeSigned.bin")) {
                     out.write(contentToBeSigned);
                 }
             }

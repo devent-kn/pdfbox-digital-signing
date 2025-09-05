@@ -48,7 +48,7 @@ public class PdfController {
             @RequestParam SigningType signingType
     ) throws Exception {
 
-        File inputFile = new File("signature-test-file.pdf");
+        File inputFile = new File("files/signature-test-file.pdf");
         byte[] signedPdf = signingService.signPdf(inputFile, signingType);
 
         return ResponseEntity.ok()
@@ -59,7 +59,7 @@ public class PdfController {
 
     @PostMapping("/callback-signing-request")
     public ResponseEntity<String> signingRequest(@RequestParam(required = false) String fileName) throws Exception {
-        signingService.preparePdfForExternalSigning("signature-test-file.pdf");
+        signingService.preparePdfForExternalSigning("files/signature-test-file.pdf");
         return ResponseEntity.ok("signing request ok");
     }
 
@@ -67,7 +67,7 @@ public class PdfController {
     public ResponseEntity<String> callback() throws Exception {
         // Tạo chữ ký CMS giả lập (mock)
         byte[] contentToBeSigned;
-        try (FileInputStream fis = new FileInputStream("contentToBeSigned.bin")) {
+        try (FileInputStream fis = new FileInputStream("files/contentToBeSigned.bin")) {
             contentToBeSigned = fis.readAllBytes();
         }
         byte[] cmsSignature = cloudSigner.signByExternalProvider(contentToBeSigned);
