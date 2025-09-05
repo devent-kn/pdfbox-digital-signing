@@ -9,8 +9,8 @@ import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 
 @Service
@@ -20,8 +20,8 @@ public class LocalSigner implements PdfSigner {
     private final LocalSignService localSignService;
 
     @Override
-    public byte[] sign(InputStream pdfInput) throws Exception {
-        try (PDDocument document = Loader.loadPDF(pdfInput.readAllBytes())) {
+    public byte[] sign(File fileInput) throws Exception {
+        try (PDDocument document = Loader.loadPDF(fileInput)) {
             PDSignature signature = new PDSignature();
             signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
             signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED);
